@@ -1,47 +1,42 @@
-const fs = require('fs');
-const data = require('../task.json');
-
-const updateFile = async (tasks) => {
-    await fs.promises.writeFile('./task.json', JSON.stringify({ tasks }, null, 2));
-}
+const { tasks, updateFile } = require('../config/database')
 
 const getAllTasksHandler = (req, res) => {
-    res.send(data.tasks);
+    res.send(tasks);
 }
 
 const getTaskHandler = (req, res) => {
     const id = parseInt(req.params.id);
-    const task = data.tasks.find((task) => task.id === id);
+    const task = tasks.find((task) => task.id === id);
     if (!task) return res.status(404).send({ message: 'Task not found' });
     res.send(task);
 }
 
 const createTaskHandler = async (req, res) => {
-    const id = data.tasks[data.tasks.length - 1].id + 1;
+    const id = tasks[tasks.length - 1].id + 1;
     const { title, description, completed } = req.body;
     const newTask = { id, title, description, completed };
-    data.tasks.push(newTask);
-    await updateFile(data.tasks);
+    tasks.push(newTask);
+    await updateFile(tasks);
     res.status(201).send(newTask);
 }
 
 const updateTaskHandler = async (req, res) => {
     const id = parseInt(req.params.id);
-    const index = data.tasks.findIndex((task) => task.id === id);
+    const index = tasks.findIndex((task) => task.id === id);
     if (index === -1) return res.status(404).send({ message: 'Task not found' });
     const { title, description, completed } = req.body;
     const updatedTask = { id, title, description, completed };
-    data.tasks[index] = updatedTask;
-    await updateFile(data.tasks);
+    tasks[index] = updatedTask;
+    await updateFile(tasks);
     return res.send(updatedTask);
 }
 
 const deleteTaskHandler = async (req, res) => {
     const id = parseInt(req.params.id);
-    const index = data.tasks.findIndex((task) => task.id === id);
+    const index = tasks.findIndex((task) => task.id === id);
     if (index === -1) return res.status(404).send({ message: 'Task not found' });
-    data.tasks.splice(index, 1);
-    await updateFile(data.tasks);
+    tasks.splice(index, 1);
+    await updateFile(tasks);
     return res.send({ message: 'Task deleted successfully!' });
 }
 
